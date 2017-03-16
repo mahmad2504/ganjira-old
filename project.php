@@ -42,6 +42,7 @@ class Project {
 	}
 	function ComputeStatus(&$task)
 	{
+		$task['status_orig'] = $task['status'];
 		$status = array();
 		if($task['isparent'] == 0)
 		{
@@ -82,6 +83,7 @@ class Project {
 	function ComputeEnd(&$task)
 	{
 		$ends =  array();
+		$task['end_orig'] = $task['end'];
 		if($task['isparent'] == 0)
 		{
 			//echo "ddd".$task['end']."\n";
@@ -102,7 +104,7 @@ class Project {
 			$ntask = &$task['children'][$i];
 			$ends[] = $this->ComputeEnd($ntask);
 		}
-		usort($ends,array( $this, 'datesort' ));
+		usort($ends,array( $this, 'datesort' ));	
 		$task['end'] = $ends[count($ends)-1];
 		
 		//echo $task['key']."-->";
@@ -117,6 +119,7 @@ class Project {
 	function ComputeStart(&$task)
 	{
 		$starts =  array();
+		$task['start_orig'] = $task['start'];
 		if($task['isparent'] == 0)
 		{
 			
@@ -153,6 +156,7 @@ class Project {
 	function ComputeEstimate(&$task)
 	{
 		$total = 0;
+		$task['timeoriginalestimate_orig'] = $task['timeoriginalestimate'];
 		if($task['isparent'] == 0)
 		{
 			if($task['timeoriginalestimate'] > 0)
@@ -183,11 +187,13 @@ class Project {
 		}
 		if($task['timeoriginalestimate'] > 0)
 		{
+			if($total > $task['timeoriginalestimate'])
+				$task['timeoriginalestimate'] = $total;			
 			if(($task['status'] == "Resolved")||($task['status'] == "Closed"))
 		        $task['timeoriginalestimate'] = $total;
 		}
 		else
-			$task['timeoriginalestimate'] = $total;
+			$task['timeoriginalestimate'] = $total;		
 		//echo $task['key']."    ".$task['timeoriginalestimate']."<br>";
 		//echo $task['key']." ".$total."\n";
 		return $task['timeoriginalestimate'];
@@ -195,6 +201,7 @@ class Project {
 	function ComputeTimeSpent(&$task)
 	{
 		$total = 0;
+		$task['timespent_orig'] = $task['timespent'];
 		if($task['isparent'] == 0)
 		{
 			if( ($task['status'] == "Resolved") || ($task['status'] == "Closed"))

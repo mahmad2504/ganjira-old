@@ -85,9 +85,6 @@ function IsString(s) {
 JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt, pCduration)
 {
 
-	var vCduration=document.createTextNode(pCduration).data;
-	var vID=parseInt(document.createTextNode(pID).data);
-	
 	
 	/////////////////////////////////////////////////////
 	var vNameColor=document.createTextNode("");
@@ -125,8 +122,27 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 		pComp = pComp.replace(style[0], '');
 		pComp = pComp.trim();
 	}
+	var vCdurationColor=document.createTextNode("");
+	vCdurationColor = vNameColor;
+	
+	var tag = pCduration.substring(0,6);
+	if(tag == "#style")
+	{
+		var style = pCduration.split(" ",2);
+		atts=style[0].split(":",2);
+		vCdurationColor = atts[1];
+	
+		pCduration = pCduration.replace(style[0], '');
+		pCduration = pCduration.trim();
+		console.log(pCduration);
+	}
+	
 	//console.log(pEnd);
 	/////////////////////////////////////////////////////
+	var vCduration=document.createTextNode(pCduration).data;
+	var vID=parseInt(document.createTextNode(pID).data);
+	
+	
 	var vName=document.createTextNode(pName).data;
 	var vStart=new Date(0);
 	var vEnd=new Date(0);
@@ -225,6 +241,7 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 	this.getNameColor=function() {return vNameColor;};
 	this.getEndColor=function() {return vEndColor;};
 	this.getCompColor=function() {return vCompColor;};
+	this.getDurColor=function() {return vCdurationColor;};
 	this.getEstimate=function(){
 		return vCduration;
 	}
@@ -907,7 +924,7 @@ JSGantt.GanttChart=function(pDiv, pFormat)
 					{
 						vTmpCell=this.newNode(vTmpRow, 'td', null, 'gduration');
 						vTmpDiv=this.newNode(vTmpCell, 'div', null, null, vTaskList[i].getEstimate()/*vTaskList[i].getDuration(vFormat, vLangs[vLang])*/);
-						vTmpDiv.style.color = vTaskList[i].getNameColor();
+						vTmpDiv.style.color = vTaskList[i].getDurColor();
 					}
 					if(vShowComp==1)
 					{

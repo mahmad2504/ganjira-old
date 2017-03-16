@@ -70,12 +70,23 @@ class JSGantt {
 		}
 		else
 		{
-		$node->addChild("pComp",round($task['progress']));
+			$node->addChild("pComp",round($task['progress']));
 			$dur = round($task['timeoriginalestimate']/(8*60*60),1);
 			if($dur == 0)
 				$node->addChild("pCduration"," ");
 			else
-			$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1));
+			{
+				if($task['timeoriginalestimate_orig'] > 0)
+				{
+					if($task['timeoriginalestimate'] > $task['timeoriginalestimate_orig'])
+						$node->addChild("pCduration","#style=color:red ".round($task['timeoriginalestimate']/(8*60*60),1));
+					else
+						$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1));
+				}
+				else
+					$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1));
+				
+			}
 		}
 		
 		//$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1));
@@ -168,8 +179,18 @@ class JSGantt {
 			$node->addChild("pName","#style=color:".$color." ".$task['summary']);
 		
 		$node->addChild("pLink",WEBLINK.$task['key']);
-		$node->addChild("pRes",$task['assignee']);
+		
+		if($task['isparent'])
+			$node->addChild("pRes","");
+		else
+			$node->addChild("pRes",$task['assignee']);
+		
 		$node->addChild("pCaption",$task['key']);
+		$node->addChild("pStatus",$task['status_orig']);
+		$node->addChild("pEnd",$task['end_orig']);
+		$node->addChild("pStart",$task['start_orig']);
+		$node->addChild("pEstimate",$task['timeoriginalestimate_orig']);
+		$node->addChild("pTimeSpent", $task['timespent_orig']);
 		//echo $id." ".$task['key']." ".$pid."\n";
 		$ntid = $id+1;
 		foreach($task['children'] as $ntask)

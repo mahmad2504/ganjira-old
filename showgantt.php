@@ -21,6 +21,11 @@ $project = new Project($layout,$data);
 $jsgantt = new JSGantt("gantt\\data",$project);
 $jsgantt->Save();
 
+$friday = date( 'Y-m-d', strtotime( 'friday this week' ) );
+//echo $friday;
+$jsgantt = new JSGantt("gantt\\archive\\".$friday,$project);
+$jsgantt->Save();
+
 // Save Gant file
 $gan = new Gan(GAN_FILE);
 $gan->Save($project);

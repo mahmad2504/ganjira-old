@@ -47,7 +47,7 @@ class Jira
 		//curl_setopt($curl, CURLOPT_HTTPGET, 1);
 		//curl_setopt($curl, CURLOPT_POST, false);
 		curl_setopt_array($curl, array(
-		CURLOPT_USERPWD => 'none' . ':' . 'none',
+		CURLOPT_USERPWD => 'himp' . ':' . 'hmip',
 		CURLOPT_RETURNTRANSFER => true
 		));
 	}
@@ -602,6 +602,50 @@ class Jira
 		foreach ($timespent_array as $i)
 			$acc = $acc + self::ConvertTimeSpentSimple($i);
 		return $acc;
+	}
+	static function GetHistory($key)
+	{
+		$history_logs =  array();
+		$curl = self::getcurl();
+	    $history = self::Get("issue/".$key."?expand=changelog");
+		//print_r($history);
+		foreach ($history['changelog']['histories'] as $key=>$value) 
+		{
+			echo $value['created']."    "."<br>";
+			foreach($value['items'] as $k=>&$itm)
+				$itm['created'] = $value['created'];
+			$history_logs[] = $value['items'];
+			//foreach($value['items'] as $key2=>$value2)
+			//{
+			//	echo $key2."----";
+			//	print_r($value2);
+			//	echo "<br>";
+			//}
+			//echo $key."----";
+			//print_r($value);
+			//echo "<br>"."****************************8\n"."<br>";
+		}
+		return $history_logs;
+	}
+	static function GetOrigEstimateHistory($key)
+	{
+		$history  = jira::GetHistory($key);
+		foreach($history as $key=>$shistory)
+		{
+			
+			//echo "<br>*********************".$shistory['created']."<br>";
+			foreach($shistory as $key2=>$log)
+			{
+				//$log['created'] = $shistory['created'];
+				//if($log['field'] == 'timeoriginalestimate')
+				{
+					echo $key2."   ";
+					print_r($log);
+					echo "<br>";
+				}
+			}
+
+		}
 	}
 	static function GetWorkLog($key)
 	{
