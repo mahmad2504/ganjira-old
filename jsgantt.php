@@ -122,8 +122,8 @@ class JSGantt {
 				}
 				if((strtoupper($task['status']) == "CLOSED") || (strtoupper($task['status']) == "RESOLVED"))
 				{
-				if($task['issuetype'] == "Requirement")
-					$node->addChild("pImage","..\\image\\req-met.png");
+				//if($task['issuetype'] == "Requirement")
+					//$node->addChild("pImage","..\\image\\req-met.png");
 					$node->addChild("pClass","gtaskcomplete");
 				}
 				else
@@ -185,8 +185,12 @@ class JSGantt {
 		if($task['isparent'])
 			$node->addChild("pRes","");
 		else
-			$node->addChild("pRes",$task['assignee']);
-		
+		{
+			if($task['issuetype'] == "Requirement")
+				$node->addChild("pRes","Requirement");
+			else
+				$node->addChild("pRes",$task['assignee']);
+		}
 		$node->addChild("pCaption",$task['key']);
 		$node->addChild("pStatus",$task['status_orig']);
 		$node->addChild("pEnd",$task['end_orig']);
