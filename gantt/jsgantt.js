@@ -82,7 +82,7 @@ function IsString(s) {
 	return s.match(/^[a-zA-Z]+$/); 
 }
 
-JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt, pCduration)
+JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt, pCduration, pImage)
 {
 
 	
@@ -99,7 +99,8 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 		pName = pName.trim();
 		
 	}
-	var vEndColor=document.createTextNode("");
+	var vEndColor=vNameColor;//document.createTextNode("");
+	
 	var tag = pEnd.substring(0,6);
 	if(tag == "#style")
 	{
@@ -110,7 +111,8 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 		pEnd = pEnd.replace(style[0], '');
 		pEnd = pEnd.trim();
 	}
-	var vCompColor=document.createTextNode("");
+	var vCompColor=vEndColor;//document.createTextNode("");
+	//console.log("end="+vEndColor);
 	vCompColor = vEndColor;
 	var tag = pComp.substring(0,6);
 	if(tag == "#style")
@@ -122,6 +124,7 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 		pComp = pComp.replace(style[0], '');
 		pComp = pComp.trim();
 	}
+	//console.log("comp="+vCompColor);
 	var vCdurationColor=document.createTextNode("");
 	vCdurationColor = vNameColor;
 	
@@ -134,11 +137,12 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 	
 		pCduration = pCduration.replace(style[0], '');
 		pCduration = pCduration.trim();
-		console.log(pCduration);
+		//console.log(pCduration);
 	}
 	
 	//console.log(pEnd);
 	/////////////////////////////////////////////////////
+	var vImage = document.createTextNode(pImage).data;
 	var vCduration=document.createTextNode(pCduration).data;
 	var vID=parseInt(document.createTextNode(pID).data);
 	
@@ -242,6 +246,7 @@ JSGantt.TaskItem=function(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, 
 	this.getEndColor=function() {return vEndColor;};
 	this.getCompColor=function() {return vCompColor;};
 	this.getDurColor=function() {return vCdurationColor;};
+    this.getImage=function() { return vImage;};
 	this.getEstimate=function(){
 		return vCduration;
 	}
@@ -901,16 +906,38 @@ JSGantt.GanttChart=function(pDiv, pFormat)
 					{
 						vTmpDiv=this.newNode(vTmpCell, 'div', null, null, vCellContents);
 						var vTmpSpan=this.newNode(vTmpDiv, 'span', vDivId+'group_'+vID, 'gfoldercollapse', (vTaskList[i].getOpen()==1)?'-':'+');
+						vTmpSpan.style.color = vTaskList[i].getNameColor();
 						vTaskList[i].setGroupSpan(vTmpSpan);
 						JSGantt.addFolderListeners(this, vTmpSpan, vID);
 						vTmpDiv.appendChild(document.createTextNode('\u00A0'+vTaskList[i].getName()));
-						//vTmpDiv.style.color = vTaskList[i].getNameColor();
+						vTmpDiv.style.color = vTaskList[i].getNameColor();
 					}
 					else
 					{
 						vCellContents+='\u00A0\u00A0\u00A0\u00A0';
-						vTmpDiv=this.newNode(vTmpCell, 'div', null, null, vCellContents+vTaskList[i].getName());
+						
+						vTmpDiv=this.newNode(vTmpCell, 'div', null, null, vCellContents);
+						img = vTaskList[i].getImage();
+						
+						if (img == 'undefined') {}
+						else
+						{
+							//console.log(img);
+							//console.log(vTaskList[i].getName());
+						var oImg = document.createElement("img");
+							oImg.setAttribute('src', img);
+						oImg.setAttribute('alt', 'na');
+						oImg.setAttribute('height', '10px');
+						oImg.setAttribute('width', '10px');
+						vTmpDiv.appendChild(oImg);
+					}
+						vTmpDiv.appendChild(document.createTextNode('\u00A0'+vTaskList[i].getName()));
+						//vTmpDiv=this.newNode(vTmpCell, 'div', null, null, vCellContents+vTaskList[i].getName());
 						vTmpDiv.style.color = vTaskList[i].getNameColor();
+									
+						
+						
+						//getImage
 									
 					}
 
@@ -933,7 +960,9 @@ JSGantt.GanttChart=function(pDiv, pFormat)
 							vTmpDiv=this.newNode(vTmpCell, 'div', null, null, "-");
 						else
 						vTmpDiv=this.newNode(vTmpCell, 'div', null, null, vTaskList[i].getCompStr());
+					
 						vTmpDiv.style.color = vTaskList[i].getCompColor();
+						//console.log(vTaskList[i].getCompColor());
 					}
 					if(vShowStartDate==1)
 					{
@@ -1867,7 +1896,6 @@ JSGantt.processRows=function(pList, pID, pRow, pLevel, pOpen, pUseSort)
 				vMaxDate=pList[i].getEnd();
 				vMaxSet=1;
 			}
-
 			vCompSum+=pList[i].getCompVal();
 			pList[i].setSortIdx(i*pList.length);
 		}
@@ -2582,6 +2610,8 @@ JSGantt.AddXMLTask=function(pGanttVar, pXmlDoc)
 				pNotes=JSGantt.getXMLNodeValue(Task[i],'pNotes',2,'');
 				pClass=JSGantt.getXMLNodeValue(Task[i],'pClass',2);
 				pCduration=JSGantt.getXMLNodeValue(Task[i],'pCduration',2);
+				pImage=JSGantt.getXMLNodeValue(Task[i],'pImage',2);
+				//console.log(pImage);
 				if (typeof pClass=='undefined')
 				{
 					if(pGroup>0) pClass ='ggroupblack';
@@ -2590,7 +2620,7 @@ JSGantt.AddXMLTask=function(pGanttVar, pXmlDoc)
 				}
 
 				// Finally add the task
-				pGanttVar.AddTaskItem(new JSGantt.TaskItem(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGanttVar,pCduration));
+				pGanttVar.AddTaskItem(new JSGantt.TaskItem(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGanttVar,pCduration,pImage));
 			}
 		}
 	}

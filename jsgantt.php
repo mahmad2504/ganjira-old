@@ -62,7 +62,8 @@ class JSGantt {
 		
 		if($task['issuetype'] == "Requirement")
 		{
-			$node->addChild("pCduration"," ");
+			//$node->addChild("pCduration"," ");
+			$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1));
 			if((strtoupper($task['status']) == "CLOSED") || (strtoupper($task['status']) == "RESOLVED"))
 				$node->addChild("pComp","Received");
 			else
@@ -79,7 +80,9 @@ class JSGantt {
 				if($task['timeoriginalestimate_orig'] > 0)
 				{
 					if($task['timeoriginalestimate'] > $task['timeoriginalestimate_orig'])
-						$node->addChild("pCduration","#style=color:red ".round($task['timeoriginalestimate']/(8*60*60),1));
+						$node->addChild("pCduration","(".$task['timeoriginalestimate_orig']/(8*60*60).") ".round($task['timeoriginalestimate']/(8*60*60),1));
+					else if($task['timeoriginalestimate'] < $task['timeoriginalestimate_orig'])
+						$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1)." (".$task['timeoriginalestimate_orig']/(8*60*60).")"  );
 					else
 						$node->addChild("pCduration",round($task['timeoriginalestimate']/(8*60*60),1));
 				}
@@ -104,6 +107,7 @@ class JSGantt {
 			{
 				if($task['issuetype'] == "Requirement")
 				{
+					$node->addChild("pImage","..\\image\\req.png");
 					$today = strtotime(date('Y-M-d'));
 					$end = strtotime($task['end']);
 					if( $today > $end ) // LaTE
@@ -118,6 +122,8 @@ class JSGantt {
 				}
 				if((strtoupper($task['status']) == "CLOSED") || (strtoupper($task['status']) == "RESOLVED"))
 				{
+				if($task['issuetype'] == "Requirement")
+					$node->addChild("pImage","..\\image\\req-met.png");
 					$node->addChild("pClass","gtaskcomplete");
 				}
 				else
@@ -168,10 +174,6 @@ class JSGantt {
 		
 		$color = $this->GetColor($task['status']);
 		
-		if($task['issuetype'] == "Requirement")
-		{
-			$task['summary'] = "->".$task['summary'];
-		}
 			
 		if(strlen($task['summary'])> $length)
 			$node->addChild("pName","#style=color:".$color." ".substr($task['summary'],0,$length)."...");
